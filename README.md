@@ -1,1 +1,1 @@
-# dalma-parallel-job-array
+# dalma-parallel-job-arrayThis is the Parallel Job Array tool developed by Benoit Marchand for BuTinah and ported to Dalma by Guowei He.
