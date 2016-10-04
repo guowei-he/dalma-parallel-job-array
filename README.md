@@ -1,1 +1,1 @@
-# dalma-parallel-job-arrayThis is the Parallel Job Array tool developed by Benoit Marchand for BuTinah and ported to Dalma by Guowei He.
+# dalma-parallel-job-arrayThis is the Parallel Job Array tool developed by Benoit Marchand for BuTinah and ported to Dalma by Guowei He.## Usage:On Dalma:./slurm_parallel_ja_submit.sh <file-with-commands>Inside file-with-commands, each line will be a command to be executed by the parallel job array. In the end, the screen output will be saved in the file output.log.
