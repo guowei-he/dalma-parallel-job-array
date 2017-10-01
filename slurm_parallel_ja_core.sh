@@ -27,7 +27,7 @@ start_ja() {
 	fi
 
 	if [[ "$NN" == "" ]]; then
-		echo "<# PBS jobs> undefined"
+		echo "<# SLURM jobs> undefined"
 		echo "usage: start_ja <# jobs> <# nodes>"
 		return
 	fi

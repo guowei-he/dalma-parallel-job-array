@@ -1,12 +1,12 @@
 #!/bin/bash
 
 #
-# Usage: launcher <file-with-list-of-things-to-do>
+# Usage: $0 <commands-file> -t <walltime-in-hours> -p <partition> -n <nnodes-to-use>
 #
 
 if [[ "$#" -eq 0 ]]
 then
-  echo "Usage: $0 <commands-file> -t <walltime-in-hours> -p <partition> -n <njobs-in-array>"
+  echo "Usage: $0 <commands-file> -t <walltime-in-hours> -p <partition> -n <nnodes-to-use>"
   exit 1
 fi
 
@@ -18,7 +18,7 @@ shift
 constraint="avx2"
 walltime=48
 partition="serial"
-njobs_in_array=""
+nnodes_to_use=""
 while getopts ":c:t:p:n:" opt; do
   case $opt in
     c)
@@ -35,7 +35,7 @@ while getopts ":c:t:p:n:" opt; do
       ;;
     n)
       echo "Entered number of jobs in array: $OPTARG" >&2
-      njobs_in_array="$OPTARG"
+      nnodes_to_use="$OPTARG"
     ;;
     \?)
       echo "Invalid option: -$OPTARG" >&2
@@ -74,14 +74,14 @@ NCORES=28
 NN=$(expr $(expr $NJ - 1) / $NCORES + 1)
 
 # From command line
-if [[ ! -z "${njobs_in_array}" ]]; then
-  NN=${njobs_in_array}
+if [[ ! -z "${nnodes_to_use}" ]]; then
+  NN=${nnodes_to_use}
 fi
 
 #
 # Limit number of nodes that can be used at once
 #
-MAXNN=20
+MAXNN=51
 if (( $NN > "${MAXNN}" )); then
 	NN="${MAXNN}"
 fi
