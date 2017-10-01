@@ -45,8 +45,6 @@ start_ja() {
 		exit 1
 	fi
 
-	ARRAYID=$SLURM_ARRAY_TASK_ID
-
 	#
 	# How many processor slots to use
 	#
@@ -92,7 +90,7 @@ start_ja() {
 	# Reconstruct STDOUT
 	#
 	for (( slot=1 ; slot<=$NT ; slot++ )); do
-		if [[ -e /tmp/$$.$slot.e ]]; then
+		if [[ -e /tmp/$$.$slot.o ]]; then
 			cat /tmp/$$.$slot.o
 		fi
 	done
