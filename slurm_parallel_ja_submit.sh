@@ -15,6 +15,7 @@ echo "Input: ${inputfile}"
 
 shift
 
+# Defaults
 constraint="avx2"
 walltime=48
 partition="serial"
@@ -67,10 +68,28 @@ if (( $NJ <= 0 )); then
 	exit 1
 fi
 
+# Calculate #cores per nodes from constraint
+NCORES=""
+case ${constraint} in
+avx2)
+  NCORES=28
+  ;;
+sse)
+  NCORES=12
+  ;;
+*)
+  echo "Error: invalid constraint. Must be 'sse' or 'avx2'"
+  exit 1
+  ;;
+esac
+
 #
 # Set number of job clusters (number of actual iterations as seen by SLURM)
 #
-NCORES=28
+if [[ -z "${NCORES}" ]]; then
+  echo "Error: NCORES is not set"
+  exit 1
+fi
 NN=$(expr $(expr $NJ - 1) / $NCORES + 1)
 
 # From command line
@@ -81,7 +100,7 @@ fi
 #
 # Limit number of nodes that can be used at once
 #
-MAXNN=51
+MAXNN=8
 if (( $NN > "${MAXNN}" )); then
 	NN="${MAXNN}"
 fi
@@ -100,7 +119,7 @@ STP=$(expr $(expr $NJ + $NN - 1) / $NN)
 cat << EOF > job.$$.sh
 #!/bin/bash
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=28
+#SBATCH --cpus-per-task=${NCORES}
 #SBATCH --time=${walltime}:00:00
 #SBATCH --output=output-%a.log
 #SBATCH --partition=${partition}
@@ -119,7 +138,7 @@ execute_job() {
 
 
 source ./slurm_parallel_ja_core.sh
-start_ja $NJ $NN
+start_ja $NJ $NN $NCORES
 
 # To resubmit this job, run:
 #   sbatch job.$$.sh

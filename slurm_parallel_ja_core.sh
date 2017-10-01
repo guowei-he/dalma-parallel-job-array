@@ -3,35 +3,32 @@
 #
 serial_thread () {
 	for (( it=$1 ; it<=$2 ; it++ )); do
-		#
-		# $3 is the optional name of function / script / program to call
-		#
 		export MY_TASK_ID=$it
-		if [[ "$3" == "" ]]; then
-			execute_job
-		else
-			$3
-		fi
+		execute_job
 	done
 }
 
 start_ja() {
 	NJ=$1
 	NN=$2
-	FCT=$3
+	NT=$3
 
 	if [[ "$NJ" == "" ]]; then
 		echo "<# iterations> undefined"
-		echo "usage: start_ja <# jobs> <# nodes>"
+		echo "usage: start_ja <# jobs> <# nodes> <# cores per node>"
 		return
 	fi
 
 	if [[ "$NN" == "" ]]; then
 		echo "<# SLURM jobs> undefined"
-		echo "usage: start_ja <# jobs> <# nodes>"
+		echo "usage: start_ja <# jobs> <# nodes> <# cores per node>"
 		return
 	fi
-
+	
+	if [[ "$NT" == "" ]]; then
+		echo "<# cores each node> undefined"
+		echo "usage: start_ja <# jobs> <# nodes> <# cores per node>"
+	fi
 	#
 	# Verify JA variables
 	#
@@ -46,17 +43,13 @@ start_ja() {
 	fi
 
 	#
-	# How many processor slots to use
+	# How many processor slots to use is now from $NT
 	#
-	# but using job arrays uses nodes in exclusive mode (1 user per node)
-	NT=$(grep -c processor /proc/cpuinfo)
 	ITER=$(expr $(expr $NJ + $NN - 1) / $NN)
-	#echo "ITER is $ITER"
 	#
 	# Split work across all slots
 	#
         WRK=$(expr $(expr $ITER + $NT - 1) / $NT)
-	#echo "WRK is $WRK"
 	FIRST=$(expr $(expr $SLURM_ARRAY_TASK_ID - 1) \* $ITER + 1)
 	LAST=$NJ
 	FFIRST=$FIRST
@@ -65,8 +58,6 @@ start_ja() {
 	for (( slot=1 ; slot<=$NT ; slot++ )); do
 		if (( $LAST >= $FFIRST)); then
 			LLAST=$(expr $FFIRST + $WRK - 1)
-			#echo " $slot $FIRST $LAST $FFIRST $LLAST $ILAST"
-			#if (( $slot == $NT )); then
                         if (( $LLAST > $ILAST )); then
 				LLAST=$ILAST
 			fi
@@ -76,7 +67,7 @@ start_ja() {
 			# 
 			# Note STDOUT / STDERR redirection into temp files
 			#
-			serial_thread $FFIRST $LLAST $FCT  > /tmp/$$.$slot.o 2> /tmp/$$.$slot.e &
+			serial_thread $FFIRST $LLAST > /tmp/$$.$slot.o 2> /tmp/$$.$slot.e &
 		fi
 		FFIRST=$(expr $FFIRST + $WRK)
 	done
