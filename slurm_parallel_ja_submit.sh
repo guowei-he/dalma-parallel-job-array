@@ -100,15 +100,10 @@ fi
 #
 # Limit number of nodes that can be used at once
 #
-MAXNN=8
+MAXNN=100
 if (( $NN > "${MAXNN}" )); then
 	NN="${MAXNN}"
 fi
-
-#
-# Set number of jobs per node
-#
-STP=$(expr $(expr $NJ + $NN - 1) / $NN)
 
 ###############################################################
 #
@@ -150,6 +145,6 @@ EOF
 chmod 755 job.$$.sh
 
 #
-# Submit job array ('-n' to have exclusive use of node)
+# Submit job array
 #
 sbatch job.$$.sh
