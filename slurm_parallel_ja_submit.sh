@@ -94,7 +94,11 @@ NN=$(expr $(expr $NJ - 1) / $NCORES + 1)
 
 # From command line
 if [[ ! -z "${nnodes_to_use}" ]]; then
-  NN=${nnodes_to_use}
+  # make sure there is more work then slots
+  nslots_min=$(expr $NCORES \* $(expr $nnodes_to_use - 1))
+  if [[ "${NJ}" -gt "${nslots_min}" ]]; then
+    NN=${nnodes_to_use}
+  fi
 fi
 
 #
