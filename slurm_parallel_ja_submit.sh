@@ -35,7 +35,7 @@ while getopts ":c:t:p:n:" opt; do
       partition="$OPTARG"
       ;;
     n)
-      echo "Entered number of jobs in array: $OPTARG" >&2
+      echo "Entered number of nodes to use: $OPTARG" >&2
       nnodes_to_use="$OPTARG"
     ;;
     \?)
