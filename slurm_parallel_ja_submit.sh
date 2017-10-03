@@ -117,6 +117,7 @@ cat << EOF > job.$$.sh
 #SBATCH --cpus-per-task=${NCORES_PER_NODE}
 #SBATCH --time=${walltime}:00:00
 #SBATCH --output=output-%a.log
+#SBATCH --output=error-%a.log
 #SBATCH --partition=${partition}
 #SBATCH --constraint=${constraint}
 #SBATCH --array=1-${NN}
