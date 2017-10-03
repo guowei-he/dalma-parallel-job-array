@@ -43,12 +43,9 @@ start_ja() {
 	fi
 
 	#
-	# How many processor slots to use is now from $NT
-	#
-	ITER=$(expr $(expr $NJ + $NN - 1) / $NN)
-	#
 	# Split work across all slots
 	#
+	ITER=$(expr $(expr $NJ + $NN - 1) / $NN)
         WRK=$(expr $(expr $ITER + $NT - 1) / $NT)
 	FIRST=$(expr $(expr $SLURM_ARRAY_TASK_ID - 1) \* $ITER + 1)
 	LAST=$NJ
