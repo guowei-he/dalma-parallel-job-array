@@ -84,12 +84,8 @@ sse)
 esac
 
 #
-# Set number of job clusters (number of actual iterations as seen by SLURM)
+# Set number of nodes to use
 #
-if [[ -z "${NCORES}" ]]; then
-  echo "Error: NCORES is not set"
-  exit 1
-fi
 NN=$(expr $(expr $NJ - 1) / $NCORES + 1)
 
 # From command line
