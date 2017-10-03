@@ -94,6 +94,7 @@ fi
 if [[ "${nnodes_to_use}" -gt "${nnodes_should_use_max}" ]]; then
   nnodes_to_use=${nnodes_should_use_max}
 fi
+echo "To maximize performance, the number of nodes to use will be: ${nnodes_to_use}"
 
 ###############################################################
 #
