@@ -19,7 +19,7 @@ shift
 constraint="avx2"
 walltime=48
 partition="serial"
-nnodes_to_use=""
+nnodes_to_use="8"
 while getopts ":c:t:p:n:" opt; do
   case $opt in
     c)
@@ -86,23 +86,13 @@ esac
 #
 # Set number of nodes to use
 #
-NN=$(expr $(expr $NJ - 1) / $NCORES_PER_NODE + 1)
-
-# From command line
-if [[ ! -z "${nnodes_to_use}" ]]; then
-  # make sure there is more work than slots
-  nslots_min=$(expr $NCORES_PER_NODE \* $(expr $nnodes_to_use - 1))
-  if [[ "${NJ}" -gt "${nslots_min}" ]]; then
-    NN=${nnodes_to_use}
-  fi
+NNODES_HARD_LIMIT=100
+nnodes_should_use_max=$(expr $(expr $NJ - 1) / $NCORES_PER_NODE + 1)
+if [[ "${nnodes_should_use_max}" -gt ${NNODES_HARD_LIMIT} ]]; then
+  nnodes_should_use_max="${NNODES_HARD_LIMIT}"
 fi
-
-#
-# Limit number of nodes that can be used at once
-#
-MAXNN=100
-if (( $NN > "${MAXNN}" )); then
-	NN="${MAXNN}"
+if [[ "${nnodes_to_use}" -gt "${nnodes_should_use_max}" ]]; then
+  nnodes_to_use=${nnodes_should_use_max}
 fi
 
 ###############################################################
@@ -117,10 +107,10 @@ cat << EOF > job.$$.sh
 #SBATCH --cpus-per-task=${NCORES_PER_NODE}
 #SBATCH --time=${walltime}:00:00
 #SBATCH --output=output-%a.log
-#SBATCH --output=error-%a.log
+#SBATCH --error=error-%a.log
 #SBATCH --partition=${partition}
 #SBATCH --constraint=${constraint}
-#SBATCH --array=1-${NN}
+#SBATCH --array=1-${nnodes_to_use}
 
 execute_job() {
     #
@@ -134,7 +124,7 @@ execute_job() {
 
 
 source ./slurm_parallel_ja_core.sh
-start_ja $NJ $NN $NCORES_PER_NODE
+start_ja ${NJ} ${nnodes_to_use} ${NCORES_PER_NODE}
 
 # To resubmit this job, run:
 #   sbatch job.$$.sh
