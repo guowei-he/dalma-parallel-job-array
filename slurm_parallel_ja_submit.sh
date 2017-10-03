@@ -69,13 +69,13 @@ if (( $NJ <= 0 )); then
 fi
 
 # Calculate #cores per nodes from constraint
-NCORES=""
+NCORES_PER_NODE=""
 case ${constraint} in
 avx2)
-  NCORES=28
+  NCORES_PER_NODE=28
   ;;
 sse)
-  NCORES=12
+  NCORES_PER_NODE=12
   ;;
 *)
   echo "Error: invalid constraint. Must be 'sse' or 'avx2'"
@@ -86,12 +86,12 @@ esac
 #
 # Set number of nodes to use
 #
-NN=$(expr $(expr $NJ - 1) / $NCORES + 1)
+NN=$(expr $(expr $NJ - 1) / $NCORES_PER_NODE + 1)
 
 # From command line
 if [[ ! -z "${nnodes_to_use}" ]]; then
-  # make sure there is more work then slots
-  nslots_min=$(expr $NCORES \* $(expr $nnodes_to_use - 1))
+  # make sure there is more work than slots
+  nslots_min=$(expr $NCORES_PER_NODE \* $(expr $nnodes_to_use - 1))
   if [[ "${NJ}" -gt "${nslots_min}" ]]; then
     NN=${nnodes_to_use}
   fi
@@ -114,7 +114,7 @@ fi
 cat << EOF > job.$$.sh
 #!/bin/bash
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=${NCORES}
+#SBATCH --cpus-per-task=${NCORES_PER_NODE}
 #SBATCH --time=${walltime}:00:00
 #SBATCH --output=output-%a.log
 #SBATCH --partition=${partition}
@@ -133,7 +133,7 @@ execute_job() {
 
 
 source ./slurm_parallel_ja_core.sh
-start_ja $NJ $NN $NCORES
+start_ja $NJ $NN $NCORES_PER_NODE
 
 # To resubmit this job, run:
 #   sbatch job.$$.sh
